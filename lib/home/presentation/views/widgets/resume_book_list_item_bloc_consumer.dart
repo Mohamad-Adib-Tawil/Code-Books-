@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:code_books/core/utils/functions/build_error_snack_bar.dart';
+import 'package:code_books/contants.dart';
+import 'package:hive/hive.dart';
 
 enum CurrentCategory { all, flutter, algorithms, javascript, python, php }
 
@@ -45,6 +47,26 @@ class _ResumeBookListItemBlocConsumerState
   void initState() {
     super.initState();
     widget.scrollController.addListener(_scrollListener);
+    // Prefill 'All' list from cache so it shows immediately when returning from Search
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadAllFromCache();
+    });
+  }
+
+  Future<void> _loadAllFromCache() async {
+    try {
+      final allBoxName = boxNameFor('new', 'programming');
+      final box = Hive.isBoxOpen(allBoxName)
+          ? Hive.box<BookEntity>(allBoxName)
+          : await Hive.openBox<BookEntity>(allBoxName);
+      if (mounted && books.isEmpty && box.isNotEmpty) {
+        setState(() {
+          books = box.values.toList();
+        });
+      }
+    } catch (_) {
+      // ignore cache errors silently
+    }
   }
 
   void _scrollListener() {
@@ -168,6 +190,13 @@ class _ResumeBookListItemBlocConsumerState
       },
       builder: (context, state) {
         if (state is NewestBooksLoading) {
+          // If we already have cached 'All' items, keep showing them.
+          if (books.isNotEmpty) {
+            return ResumeBookListView(
+              books: books,
+              scrollController: widget.scrollController,
+            );
+          }
           return const ResumeBookPaginationListView();
         } else if (state is NewestBooksSuccess ||
             state is NewestBooksPaginationLoading) {
@@ -207,7 +236,14 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is NewestBooksFailure) {
           return Center(child: Text(state.errMessage));
         } else {
-          return Container();
+          // Initial/other states: show cached 'All' if available
+          if (books.isNotEmpty) {
+            return ResumeBookListView(
+              books: books,
+              scrollController: widget.scrollController,
+            );
+          }
+          return const ResumeBookPaginationListView();
         }
       },
     );

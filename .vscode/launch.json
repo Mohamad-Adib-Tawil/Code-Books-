@@ -84,7 +84,7 @@
         "name": "iPhone 16 Pro Max (mobile)",
         "request": "launch",
         "type": "dart",
-        "deviceId": "60B62CE3-C43D-4A1E-99CD-A44434EFEE38",
+        "deviceId": "B2329F42-2117-418E-8507-CA3C2A8E5118",
         "flutterMode": "debug"
       },
       {

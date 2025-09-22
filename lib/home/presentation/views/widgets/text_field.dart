@@ -1,7 +1,9 @@
-import '../../../../contants.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../contants.dart';
+import '../../../../core/utils/app_router.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({super.key});
@@ -20,16 +22,20 @@ class CustomTextField extends StatelessWidget {
         ],
       ),
       child: TextField(
+        readOnly: true,
+        onTap: () => context.push(AppRouter.kSearchView),
+        textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           filled: true,
           fillColor: kBlackOpacityColor,
-          hintText: 'Search',
+          hintText: 'Search books, topics, authors...',
           hintStyle: const TextStyle(color: kSliverIconColor, fontSize: 14),
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: iconTextField(kSearchIcon),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: SvgPicture.asset(
+          suffixIcon: IconButton(
+            tooltip: 'Filters',
+            onPressed: () => context.push('${AppRouter.kSearchView}?openFilters=1'),
+            icon: SvgPicture.asset(
               kFilterIcon,
               width: 20,
               height: 20,

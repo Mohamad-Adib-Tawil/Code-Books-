@@ -55,7 +55,7 @@ class HomeRemoteDataSourceImpl extends HomeRemoteDataSource {
     final q = _queryFor(sord, searchName);
     var data = await apiServices.get(
         endPoint:
-            'volumes?filter=free-ebooks&orderBy=$orderBy&q=$q&startIndex=${pageNumber * 10}');
+            'volumes?filter=free-ebooks&orderBy=$orderBy&maxResults=20&q=$q&startIndex=${pageNumber * 20}');
     log('HomeRemoteDataSourceImpl data fetchPopularBooks::: $data');
     List<BookEntity> books = getBooksList(data);
     log('HomeRemoteDataSourceImpl books ::: $books');
@@ -72,14 +72,14 @@ class HomeRemoteDataSourceImpl extends HomeRemoteDataSource {
     final q = _queryFor(sord, searchName);
     var data = await apiServices.get(
         endPoint:
-           'volumes?filter=free-ebooks&orderBy=$orderBy&q=$q&startIndex=${pageNumber * 10}');
+           'volumes?filter=free-ebooks&orderBy=$orderBy&maxResults=20&q=$q&startIndex=${pageNumber * 20}');
     log('HomeRemoteDataSourceImpl data fetchNewestBooks::: $data');
     List<BookEntity> books = getBooksList(data);
     // Fallback: if no items, retry without the free-ebooks filter to broaden results
     if (books.isEmpty) {
       data = await apiServices.get(
           endPoint:
-              'volumes?orderBy=$orderBy&q=$q&startIndex=${pageNumber * 10}');
+              'volumes?orderBy=$orderBy&maxResults=20&q=$q&startIndex=${pageNumber * 20}');
       log('HomeRemoteDataSourceImpl fallback data fetchNewestBooks (no filter)::: $data');
       books = getBooksList(data);
     }
