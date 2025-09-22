@@ -90,32 +90,64 @@ class _BookStackListBlocConsumerState extends State<BookStackListBlocConsumer> {
         }
       },
       builder: (context, state) {
+        Widget child;
+        String visualKey = 'popular';
+
         if (state is PopularBooksLoading) {
           // If we already have cached items, keep showing them.
           if (books.isNotEmpty) {
-            return BookStackListView(books: books);
+            child = BookStackListView(books: books);
+            visualKey = 'popular';
+          } else if (booksNewest.isNotEmpty) {
+            child = BookStackListView(books: booksNewest);
+            visualKey = 'new';
+          } else if (booksTrend.isNotEmpty) {
+            child = BookStackListView(books: booksTrend);
+            visualKey = 'trend';
+          } else {
+            child = const BookStackPAginationListView();
+            visualKey = 'loading';
           }
-          if (booksNewest.isNotEmpty) {
-            return BookStackListView(books: booksNewest);
-          }
-          if (booksTrend.isNotEmpty) {
-            return BookStackListView(books: booksTrend);
-          }
-          return const BookStackPAginationListView();
         } else if (state is PopularBooksPaginationLoading) {
           // Keep showing accumulated list while next page loads
-          return BookStackListView(books: books);
+          child = BookStackListView(books: books);
+          visualKey = 'popular';
         } else if (state is PopularBooksSuccess) {
-          return BookStackListView(books: books);
+          child = BookStackListView(books: books);
+          visualKey = 'popular';
         } else if (state is PopularBooksNewest) {
-          return BookStackListView(books: booksNewest);
+          child = BookStackListView(books: booksNewest);
+          visualKey = 'new';
         } else if (state is PopularBooksTrend) {
-          return BookStackListView(books: booksTrend);
+          child = BookStackListView(books: booksTrend);
+          visualKey = 'trend';
         } else if (state is PopularBooksFailure) {
-          return Center(child: Text(state.errMessage));
+          child = Center(child: Text(state.errMessage));
+          visualKey = 'error';
         } else {
-          return Container(); // Placeholder for an empty state
+          child = const SizedBox.shrink();
+          visualKey = 'empty';
         }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (widget, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0.0, 0.05),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: widget),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey(visualKey),
+            child: child,
+          ),
+        );
       },
     );
   }
