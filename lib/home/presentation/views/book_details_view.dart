@@ -15,6 +15,7 @@ class BoookDetailsView extends StatelessWidget {
       backgroundColor: kDarkBlackColor,
       appBar: AppBar(
         backgroundColor: const Color(0xFF313131).withOpacity(.35),
+
         elevation: 0,
         centerTitle: true,
         leading: IconButton(

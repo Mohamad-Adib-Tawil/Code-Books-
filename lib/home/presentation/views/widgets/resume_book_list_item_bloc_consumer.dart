@@ -189,62 +189,93 @@ class _ResumeBookListItemBlocConsumerState
         }
       },
       builder: (context, state) {
+        Widget child;
+        CurrentCategory visualCategory = currentCategory;
+
         if (state is NewestBooksLoading) {
           // If we already have cached 'All' items, keep showing them.
           if (books.isNotEmpty) {
-            return ResumeBookListView(
+            child = ResumeBookListView(
               books: books,
               scrollController: widget.scrollController,
             );
+          } else {
+            child = const ResumeBookPaginationListView();
           }
-          return const ResumeBookPaginationListView();
         } else if (state is NewestBooksSuccess ||
             state is NewestBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: books,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.all;
         } else if (state is FlutterBooks ||
             state is FlutterBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: flutterBooks,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.flutter;
         } else if (state is AlgorithmsBooks ||
             state is AlgorithmsBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: algorithmsBooks,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.algorithms;
         } else if (state is JavaScriptBooks ||
             state is JavaScriptBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: javaScriptBooks,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.javascript;
         } else if (state is PythonBooks ||
             state is PythonBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: pythonBooks,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.python;
         } else if (state is PhpBooks || state is PhpBooksPaginationLoading) {
-          return ResumeBookListView(
+          child = ResumeBookListView(
             books: phpBooks,
             scrollController: widget.scrollController,
           );
+          visualCategory = CurrentCategory.php;
         } else if (state is NewestBooksFailure) {
-          return Center(child: Text(state.errMessage));
+          child = Center(child: Text(state.errMessage));
         } else {
           // Initial/other states: show cached 'All' if available
           if (books.isNotEmpty) {
-            return ResumeBookListView(
+            child = ResumeBookListView(
               books: books,
               scrollController: widget.scrollController,
             );
+          } else {
+            child = const ResumeBookPaginationListView();
           }
-          return const ResumeBookPaginationListView();
         }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (widget, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0.0, 0.04),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: widget),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey(visualCategory),
+            child: child,
+          ),
+        );
       },
     );
   }

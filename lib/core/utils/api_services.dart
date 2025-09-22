@@ -13,12 +13,16 @@ class ApiServices {
 
   Future<Map<String, dynamic>> get({required String endPoint}) async {
     try {
-      var response = await retry(() async {
-        final response = await _dio.get('$baseUrl$endPoint');
-        log('ApiServices response ::: $response');
-        log('ApiServices response.data ::: ${response.data}');
-        return response.data;
-      }, retries: 3, delay: const Duration(seconds: 1));
+      var response = await retry(
+        () async {
+          final response = await _dio.get('$baseUrl$endPoint');
+          log('ApiServices response ::: $response');
+          log('ApiServices response.data ::: ${response.data}');
+          return response.data;
+        },
+        retries: 3,
+        delay: const Duration(seconds: 1),
+      );
 
       return response;
     } on DioException catch (e) {
@@ -26,7 +30,7 @@ class ApiServices {
       throw ServerFailure.fromDioException(e);
     } catch (e) {
       log('ApiServices error ::: $e');
-      throw ServerFailure( e.toString());
+      throw ServerFailure(e.toString());
     }
   }
 }

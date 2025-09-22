@@ -30,4 +30,3 @@ String boxNameFor(String listType, String category) {
   final cat = category.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
   return 'books_${lt}_${cat.isEmpty ? 'all' : cat}';
 }
-
