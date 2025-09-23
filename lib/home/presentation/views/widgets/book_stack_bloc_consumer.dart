@@ -65,7 +65,16 @@ class _BookStackListBlocConsumerState extends State<BookStackListBlocConsumer> {
     return BlocConsumer<PopularBooksCubit, PopularBooksCubitState>(
       bloc: context.read<PopularBooksCubit>(),
       listener: (context, state) {
-        if (state is PopularBooksSuccess) {
+        if (state is PopularBooksLoading) {
+          // A fresh category load has started: clear existing lists so UI doesn't show stale items
+          if (mounted) {
+            setState(() {
+              books = [];
+              booksNewest = [];
+              booksTrend = [];
+            });
+          }
+        } else if (state is PopularBooksSuccess) {
           if (mounted) {
             setState(() {
               books.addAll(state.books);
@@ -94,20 +103,9 @@ class _BookStackListBlocConsumerState extends State<BookStackListBlocConsumer> {
         String visualKey = 'popular';
 
         if (state is PopularBooksLoading) {
-          // If we already have cached items, keep showing them.
-          if (books.isNotEmpty) {
-            child = BookStackListView(books: books);
-            visualKey = 'popular';
-          } else if (booksNewest.isNotEmpty) {
-            child = BookStackListView(books: booksNewest);
-            visualKey = 'new';
-          } else if (booksTrend.isNotEmpty) {
-            child = BookStackListView(books: booksTrend);
-            visualKey = 'trend';
-          } else {
-            child = const BookStackPAginationListView();
-            visualKey = 'loading';
-          }
+          // Always show skeleton when a new category starts loading.
+          child = const BookStackPAginationListView();
+          visualKey = 'loading';
         } else if (state is PopularBooksPaginationLoading) {
           // Keep showing accumulated list while next page loads
           child = BookStackListView(books: books);

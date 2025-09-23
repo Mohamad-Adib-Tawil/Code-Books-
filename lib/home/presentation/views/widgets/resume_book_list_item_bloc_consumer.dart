@@ -40,6 +40,7 @@ class _ResumeBookListItemBlocConsumerState
   List<BookEntity> phpBooks = [];
   var nextPage = 1;
   var isLoading = false;
+  bool isInitialLoading = false;
 
   CurrentCategory currentCategory = CurrentCategory.all;
 
@@ -111,9 +112,38 @@ class _ResumeBookListItemBlocConsumerState
   Widget build(BuildContext context) {
     return BlocConsumer<FetchNewestBooksCubit, FetchNewestBooksState>(
       listener: (context, state) {
-        if (state is NewestBooksSuccess) {
+        if (state is NewestBooksLoading) {
+          // Starting a fresh load for the current category: clear its list and show skeleton
           if (mounted) {
             setState(() {
+              isInitialLoading = true;
+              nextPage = 1;
+              switch (currentCategory) {
+                case CurrentCategory.all:
+                  books = [];
+                  break;
+                case CurrentCategory.flutter:
+                  flutterBooks = [];
+                  break;
+                case CurrentCategory.algorithms:
+                  algorithmsBooks = [];
+                  break;
+                case CurrentCategory.javascript:
+                  javaScriptBooks = [];
+                  break;
+                case CurrentCategory.python:
+                  pythonBooks = [];
+                  break;
+                case CurrentCategory.php:
+                  phpBooks = [];
+                  break;
+              }
+            });
+          }
+        } else if (state is NewestBooksSuccess) {
+          if (mounted) {
+            setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.all) {
                 // switched category back to all; reset paging and list
                 books = [];
@@ -126,6 +156,7 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is FlutterBooks) {
           if (mounted) {
             setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.flutter) {
                 flutterBooks = [];
                 nextPage = 1;
@@ -137,6 +168,7 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is AlgorithmsBooks) {
           if (mounted) {
             setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.algorithms) {
                 algorithmsBooks = [];
                 nextPage = 1;
@@ -148,6 +180,7 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is JavaScriptBooks) {
           if (mounted) {
             setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.javascript) {
                 javaScriptBooks = [];
                 nextPage = 1;
@@ -159,6 +192,7 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is PythonBooks) {
           if (mounted) {
             setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.python) {
                 pythonBooks = [];
                 nextPage = 1;
@@ -170,6 +204,7 @@ class _ResumeBookListItemBlocConsumerState
         } else if (state is PhpBooks) {
           if (mounted) {
             setState(() {
+              isInitialLoading = false;
               if (currentCategory != CurrentCategory.php) {
                 phpBooks = [];
                 nextPage = 1;
@@ -192,16 +227,9 @@ class _ResumeBookListItemBlocConsumerState
         Widget child;
         CurrentCategory visualCategory = currentCategory;
 
-        if (state is NewestBooksLoading) {
-          // If we already have cached 'All' items, keep showing them.
-          if (books.isNotEmpty) {
-            child = ResumeBookListView(
-              books: books,
-              scrollController: widget.scrollController,
-            );
-          } else {
-            child = const ResumeBookPaginationListView();
-          }
+        if (isInitialLoading) {
+          // Always show skeleton on initial load/toggle
+          child = const ResumeBookPaginationListView();
         } else if (state is NewestBooksSuccess ||
             state is NewestBooksPaginationLoading) {
           child = ResumeBookListView(

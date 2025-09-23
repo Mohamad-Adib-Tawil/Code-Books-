@@ -274,7 +274,12 @@ class _SearchViewState extends State<SearchView> {
       ),
       body: BlocConsumer<FetchNewestBooksCubit, FetchNewestBooksState>(
         listener: (context, state) {
-          if (state is NewestBooksSuccess) {
+          if (state is NewestBooksLoading) {
+            setState(() {
+              _isLoading = true;
+              _results.clear();
+            });
+          } else if (state is NewestBooksSuccess) {
             setState(() {
               final filtered = state.books.where((b) {
                 final pagesOk = (b.pageCount >= _pageRange.start && b.pageCount <= _pageRange.end);

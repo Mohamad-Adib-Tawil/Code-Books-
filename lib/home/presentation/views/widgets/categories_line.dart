@@ -30,7 +30,7 @@ class _CategoriesLineState extends State<CategoriesLine> {
                   if (mounted) {
                     setState(() {
                       selectedText = 'All';
-                      cubit.fetchNewestBooks();
+                      cubit.fetchNewestBooks(pageNumber: 0, sord: 'new');
                     });
                   }
                 },

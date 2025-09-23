@@ -18,7 +18,7 @@ class FetchNewestBooksCubit extends Cubit<FetchNewestBooksState> {
   final FetchNewestBooksUseCase fetchNewestBooksUseCase;
 
   Future<Either<Failure, List<BookEntity>>> fetchNewestBooks({
-    int pageNumber = 2,
+    int pageNumber = 0,
     String searchName = 'programming',
     String sord = 'new',
   }) async {
