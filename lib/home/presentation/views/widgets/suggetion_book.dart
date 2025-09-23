@@ -5,6 +5,8 @@ import 'package:code_books/home/data/models/book_model/book_model.dart';
 import 'package:code_books/home/domain/entities/book_entity.dart';
 import 'package:code_books/home/presentation/views/widgets/book_rating.dart';
 import 'package:code_books/home/presentation/views/widgets/rounded_button.dart';
+import 'package:go_router/go_router.dart';
+import 'package:code_books/core/utils/app_router.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../contants.dart';
@@ -62,99 +64,107 @@ class _SuggetionBookState extends State<SuggetionBook> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: 210,
-          width: double.infinity,
-          decoration: const BoxDecoration(),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.only(left: 24, top: 24, right: 150),
-            height: 160,
+    void openDetails() {
+      if (randomBook != null) {
+        context.push(AppRouter.kBookDetailsView, extra: randomBook as BookEntity);
+      }
+    }
+
+    return GestureDetector(
+      onTap: openDetails,
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        children: [
+          Container(
+            height: 210,
             width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(29),
-              color: kBlackColor,
-              boxShadow: [
-                BoxShadow(
-                  offset: const Offset(0, 10),
-                  blurRadius: 33,
-                  color: const Color(0xFF313131).withOpacity(.84),
-                ),
-              ],
-            ),
-            child: isLoading
-                ? const Center(child: SizedBox())
-                : randomBook == null
-                    ? const Center(child: Text('No books found'))
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text.rich(
-                            TextSpan(
-                              style: const TextStyle(color: kWhiteColor),
-                              children: [
-                                TextSpan(
-                                  text: "${randomBook!.title}\n",
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                                TextSpan(
-                                  text: randomBook!.authors.first,
-                                  style: const TextStyle(color: kSliverColor),
-                                ),
-                              ],
+            decoration: const BoxDecoration(),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.only(left: 24, top: 24, right: 150),
+              height: 160,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(29),
+                color: kBlackColor,
+                boxShadow: [
+                  BoxShadow(
+                    offset: const Offset(0, 10),
+                    blurRadius: 33,
+                    color: const Color(0xFF313131).withOpacity(.84),
+                  ),
+                ],
+              ),
+              child: isLoading
+                  ? const Center(child: SizedBox())
+                  : randomBook == null
+                      ? const Center(child: Text('No books found'))
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text.rich(
+                              TextSpan(
+                                style: const TextStyle(color: kWhiteColor),
+                                children: [
+                                  TextSpan(
+                                    text: "${randomBook!.title}\n",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                  TextSpan(
+                                    text: randomBook!.authors.first,
+                                    style: const TextStyle(color: kSliverColor),
+                                  ),
+                                ],
+                              ),
+                              maxLines: 2, // Set maximum lines to 2
+                              overflow: TextOverflow
+                                  .ellipsis, // Handle overflow with ellipsis
                             ),
-                            maxLines: 2, // Set maximum lines to 2
-                            overflow: TextOverflow
-                                .ellipsis, // Handle overflow with ellipsis
-                          ),
-                          const SizedBox(
-                              height: 10), // Add spacing between text and row
-                          Row(
-                            children: <Widget>[
-                              BookRating(
-                                score: randomBook!.averageRating,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: RoundedButton(
-                                  color: kPrimaryColor,
-                                  press: () {
-                                    // Implement the functionality for the button
-                                  },
-                                  text: "Read",
-                                  verticalPadding: 10,
+                            const SizedBox(
+                                height: 10), // Add spacing between text and row
+                            Row(
+                              children: <Widget>[
+                                BookRating(
+                                  score: randomBook!.averageRating,
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                            ],
-                          )
-                        ],
-                      ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: RoundedButton(
+                                    color: kPrimaryColor,
+                                    press: openDetails,
+                                    text: "Read",
+                                    verticalPadding: 10,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                            )
+                          ],
+                        ),
+            ),
           ),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: SizedBox(
-            height: 180,
-            width: 120,
-            child:
-                randomBook != null && randomBook!.imageLinksThumbnail.isNotEmpty
-                    ? Image.network(
-                        randomBook!.imageLinksThumbnail,
-                        width: 150,
-                        fit: BoxFit.fitWidth,
-                      )
-                    : const SizedBox(),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SizedBox(
+              height: 180,
+              width: 120,
+              child:
+                  randomBook != null && randomBook!.imageLinksThumbnail.isNotEmpty
+                      ? Image.network(
+                          randomBook!.imageLinksThumbnail,
+                          width: 150,
+                          fit: BoxFit.fitWidth,
+                        )
+                      : const SizedBox(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
